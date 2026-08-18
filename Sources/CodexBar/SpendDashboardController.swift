@@ -1271,11 +1271,27 @@ final class SpendDashboardController {
         let codexDisplayNames = request.configuration.codexAccountDisplayNames
         self.refreshRetainedCodexDisplayNames(codexDisplayNames)
         var nextInputs = result.inputs
+        let unsafeSourceIDs = invalidatedSourceIDs
+            .union(result.invalidatedSourceIDs)
+            .union(confirmedEmptySourceIDs)
+        let incompleteCodexSourceIDs = Set(nextInputs.compactMap { input in
+            input.provider == .codex && !input.snapshot.historyCoverageIsEstablished
+                ? input.id
+                : nil
+        })
+        if !incompleteCodexSourceIDs.isEmpty {
+            let retainedInputs = self.loadedInputs.filter {
+                incompleteCodexSourceIDs.contains($0.id) &&
+                    !unsafeSourceIDs.contains($0.id) &&
+                    $0.provider == .codex &&
+                    $0.snapshot.historyCoverageIsEstablished
+            }.map { Self.relabelCodexInput($0, displayNamesByID: codexDisplayNames) }
+            let retainedSourceIDs = Set(retainedInputs.map(\.id))
+            nextInputs.removeAll { retainedSourceIDs.contains($0.id) }
+            nextInputs.append(contentsOf: retainedInputs)
+        }
         if !result.failedSourceIDs.isEmpty {
             let freshIDs = Set(nextInputs.map(\.id))
-            let unsafeSourceIDs = invalidatedSourceIDs
-                .union(result.invalidatedSourceIDs)
-                .union(confirmedEmptySourceIDs)
             nextInputs.append(contentsOf: self.loadedInputs.filter {
                 result.failedSourceIDs.contains($0.id) &&
                     !unsafeSourceIDs.contains($0.id) &&

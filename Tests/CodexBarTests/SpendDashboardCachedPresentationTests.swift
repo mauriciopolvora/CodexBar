@@ -107,6 +107,36 @@ struct SpendDashboardCachedPresentationTests {
     }
 
     @Test
+    func `successful incomplete Codex refresh keeps the retained established total`() async {
+        let gate = SpendDashboardCachedLoaderGate()
+        let configuration = Self.configuration(account: "account|cache")
+        let controller = SpendDashboardController(
+            requestBuilder: { mode in
+                Self.request(configuration: configuration, force: mode.forcesLoader)
+            },
+            cachedLoader: { _ in
+                SpendDashboardLoadResult(
+                    inputs: [Self.input(id: "codex:account", cost: 3)],
+                    failedSourceIDs: [])
+            },
+            loader: { request in await gate.load(request) })
+
+        controller.update(configuration: configuration)
+        await Self.waitForPendingCount(1, gate: gate)
+        await gate.resume(at: 0, result: .init(
+            inputs: [Self.input(
+                id: "codex:account",
+                cost: 9,
+                historyCoverageIsEstablished: false)],
+            failedSourceIDs: []))
+        await Self.waitUntil { !controller.isRefreshing }
+
+        #expect(controller.failedSourceCount == 0)
+        #expect(controller.model.groups.first?.totalCost == 3)
+        #expect(Set(controller.model.groups.flatMap(\.providers).map(\.id)) == ["codex:account"])
+    }
+
+    @Test
     func `cached Codex totals stay bound to their account cache`() async {
         let first = Self.scanRequest(id: "first", cacheIdentity: "first-cache")
         let second = Self.scanRequest(id: "second", cacheIdentity: "second-cache")
@@ -209,7 +239,8 @@ struct SpendDashboardCachedPresentationTests {
 
     private nonisolated static func input(
         id: String? = nil,
-        cost: Double) -> SpendDashboardModel.ProviderInput
+        cost: Double,
+        historyCoverageIsEstablished: Bool = true) -> SpendDashboardModel.ProviderInput
     {
         let entry = CostUsageDailyReport.Entry(
             date: "2026-07-15",
@@ -224,6 +255,7 @@ struct SpendDashboardCachedPresentationTests {
             sessionCostUSD: nil,
             last30DaysTokens: 10,
             last30DaysCostUSD: cost,
+            historyCoverageIsEstablished: historyCoverageIsEstablished,
             daily: [entry],
             updatedAt: Self.fixtureNow)
         return SpendDashboardModel.ProviderInput(

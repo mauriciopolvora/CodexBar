@@ -261,6 +261,79 @@ struct CostUsageFetcherCacheSnapshotTests {
     }
 
     @Test
+    func `bounded tail refresh retains the prior established cached snapshot`() async throws {
+        let env = try CostUsageTestEnvironment()
+        defer { env.cleanup() }
+
+        let day = try env.makeLocalNoon(year: 2026, month: 4, day: 8)
+        let sessionURL = try Self.writeCodexSessionFile(
+            homeRoot: env.codexHomeRoot,
+            env: env,
+            day: day,
+            filename: "active-tail.jsonl",
+            tokens: 42)
+        var options = CostUsageScanner.Options(
+            codexSessionsRoot: env.codexSessionsRoot,
+            cacheRoot: env.cacheRoot)
+        options.refreshMinIntervalSeconds = 0
+
+        let established = try await CostUsageFetcher.loadTokenSnapshot(
+            provider: .codex,
+            now: day,
+            historyDays: 1,
+            includePiSessions: false,
+            scannerOptions: options)
+        let establishedCache = CostUsageStoreAccess.read(cacheRoot: env.cacheRoot)
+        #expect(established.historyCoverageIsEstablished)
+        #expect(established.last30DaysTokens == 42)
+        #expect(establishedCache.codexScanCatchUpPending != true)
+
+        let appendedAt = day.addingTimeInterval(10)
+        let appendedLine = try env.jsonl([[
+            "type": "event_msg",
+            "timestamp": env.isoString(for: appendedAt),
+            "payload": [
+                "type": "token_count",
+                "info": [
+                    "last_token_usage": [
+                        "input_tokens": 84,
+                        "cached_input_tokens": 0,
+                        "output_tokens": 0,
+                    ],
+                    "model": "openai/gpt-5.4",
+                ],
+            ],
+        ]])
+        let handle = try FileHandle(forWritingTo: sessionURL)
+        try handle.seekToEnd()
+        try handle.write(contentsOf: Data(appendedLine.utf8))
+        try handle.close()
+        try FileManager.default.setAttributes([.modificationDate: appendedAt], ofItemAtPath: sessionURL.path)
+
+        options.maxCodexScanDurationPerRefresh = .leastNonzeroMagnitude
+        let partial = try await CostUsageFetcher.loadTokenSnapshot(
+            provider: .codex,
+            now: appendedAt,
+            historyDays: 1,
+            includePiSessions: false,
+            scannerOptions: options)
+        let pendingCache = CostUsageStoreAccess.read(cacheRoot: env.cacheRoot)
+        let cached = await CostUsageFetcher.loadCachedCodexTokenSnapshotResult(
+            now: appendedAt,
+            historyDays: 1,
+            includePiSessions: false,
+            scannerOptions: options)
+
+        #expect(!partial.historyCoverageIsEstablished)
+        #expect(pendingCache.codexScanCatchUpPending == true)
+        #expect(pendingCache.codexPreviousReport?.report.data == established.daily)
+        #expect(cached?.snapshot.historyCoverageIsEstablished == true)
+        #expect(cached?.snapshot.last30DaysTokens == 42)
+        #expect(cached?.staleSnapshotUpdatedAt == established.updatedAt)
+        #expect(cached?.lastRefreshAt == nil)
+    }
+
+    @Test
     func `cached codex token snapshot keeps the cache scan time as updatedAt`() async throws {
         let env = try CostUsageTestEnvironment()
         defer { env.cleanup() }
@@ -702,12 +775,13 @@ struct CostUsageFetcherCacheSnapshotTests {
         #expect(travelled == nil)
     }
 
+    @discardableResult
     private static func writeCodexSessionFile(
         homeRoot: URL,
         env: CostUsageTestEnvironment,
         day: Date,
         filename: String,
-        tokens: Int) throws
+        tokens: Int) throws -> URL
     {
         let comps = Calendar.current.dateComponents([.year, .month, .day], from: day)
         let dir = homeRoot
@@ -741,6 +815,7 @@ struct CostUsageFetcherCacheSnapshotTests {
                 ],
             ],
         ]).write(to: url, atomically: true, encoding: .utf8)
+        return url
     }
 
     private static func writePiCodexSessionFile(

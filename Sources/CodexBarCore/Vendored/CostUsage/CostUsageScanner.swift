@@ -5186,8 +5186,11 @@ enum CostUsageScanner {
             return previous
         }
 
-        let sourceCache: CostUsageCache? = if !currentScanIsPending,
-                                              options.forceRescan,
+        // A routine bounded refresh can turn an established cache back into pending while it
+        // validates a growing active tail. Snapshot the established report before any refresh,
+        // not only explicit rescans, so presentation can remain stable until catch-up converges.
+        let sourceCache: CostUsageCache? = if plan.shouldRefresh,
+                                              !currentScanIsPending,
                                               !cache.days.isEmpty
         {
             cache
