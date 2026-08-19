@@ -445,7 +445,9 @@ extension CostUsageStoreTests {
                     modelsUsed: nil,
                     modelBreakdowns: nil),
             ], summary: nil),
-            cache: cache)
+            cache: cache,
+            reportSinceKey: "2026-08-01",
+            reportUntilKey: "2026-08-01")
 
         func save(_ cache: CostUsageCache) {
             _ = store.syncSaveCodexCache(
@@ -1569,7 +1571,9 @@ extension CostUsageStoreTests {
                     modelsUsed: nil,
                     modelBreakdowns: nil),
             ], summary: nil),
-            cache: cache)
+            cache: cache,
+            reportSinceKey: "2026-06-01",
+            reportUntilKey: "2026-07-01")
 
         let result = store.syncSaveCodexCache(
             cache,

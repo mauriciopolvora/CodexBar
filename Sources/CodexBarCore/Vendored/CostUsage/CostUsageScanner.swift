@@ -5210,7 +5210,11 @@ enum CostUsageScanner {
             modelsDevCatalog: plan.modelsDevCatalog,
             modelsDevCacheRoot: options.cacheRoot,
             priorityTurns: plan.priorityTurns)
-        return CostUsageCodexPreviousReport(report: report, cache: sourceCache)
+        return CostUsageCodexPreviousReport(
+            report: report,
+            cache: sourceCache,
+            reportSinceKey: range.sinceKey,
+            reportUntilKey: range.untilKey)
     }
 
     static func codexPreviousReport(
