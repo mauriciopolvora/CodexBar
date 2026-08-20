@@ -973,19 +973,6 @@ final class SpendDashboardController {
         let confirmedEmptySourceIDs: Set<String>
     }
 
-    private struct LoadedInputScope: Equatable {
-        let bucketTimeZoneIdentifier: String
-        let historyDays: Int
-
-        init(
-            configuration: SpendDashboardConfiguration,
-            input: SpendDashboardModel.ProviderInput)
-        {
-            self.bucketTimeZoneIdentifier = configuration.bucketCalendar.timeZone.identifier
-            self.historyDays = input.snapshot.historyDays
-        }
-    }
-
     private enum LoadPhase: Sendable {
         case ordinary
         case forcing
@@ -1025,7 +1012,7 @@ final class SpendDashboardController {
     private let publicationHandler: PublicationHandler?
     private var loadTask: Task<Void, Never>?
     private var loadedInputs: [SpendDashboardModel.ProviderInput] = []
-    private var loadedInputScopes: [String: LoadedInputScope] = [:]
+    private var loadedInputScopes: [String: SpendDashboardLoadedInputScope] = [:]
     private var loadedAt = Date()
     private var lastSuccessfulConfiguration: SpendDashboardConfiguration?
     private var phase = LoadPhase.ordinary
@@ -1160,7 +1147,7 @@ final class SpendDashboardController {
         self.loadedInputs.append(contentsOf: result.inputs)
         self.loadedInputs = Self.stableUniqueInputs(self.loadedInputs)
         for input in result.inputs {
-            self.loadedInputScopes[input.id] = LoadedInputScope(
+            self.loadedInputScopes[input.id] = SpendDashboardLoadedInputScope(
                 configuration: request.configuration,
                 input: input)
         }
@@ -1295,16 +1282,18 @@ final class SpendDashboardController {
         self.refreshRetainedCodexDisplayNames(codexDisplayNames)
         var nextInputs = result.inputs
         var nextInputScopes = Dictionary(uniqueKeysWithValues: nextInputs.map { input in
-            (input.id, LoadedInputScope(configuration: request.configuration, input: input))
+            (input.id, SpendDashboardLoadedInputScope(configuration: request.configuration, input: input))
         })
         let unsafeSourceIDs = invalidatedSourceIDs
             .union(result.invalidatedSourceIDs)
             .union(confirmedEmptySourceIDs)
-        let incompleteCodexScopes = nextInputs.reduce(into: [String: LoadedInputScope]()) { scopes, input in
-            guard input.provider == .codex,
-                  !input.snapshot.historyCoverageIsEstablished
-            else { return }
-            scopes[input.id] = LoadedInputScope(configuration: request.configuration, input: input)
+        var incompleteCodexScopes: [String: SpendDashboardLoadedInputScope] = [:]
+        for input in nextInputs
+            where input.provider == .codex && !input.snapshot.historyCoverageIsEstablished
+        {
+            incompleteCodexScopes[input.id] = SpendDashboardLoadedInputScope(
+                configuration: request.configuration,
+                input: input)
         }
         if !incompleteCodexScopes.isEmpty {
             let retainedInputs = self.loadedInputs.filter {
