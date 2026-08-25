@@ -661,6 +661,8 @@
 "section_keyboard_shortcut" = "اختصار لوحة المفاتيح";
 "open_menu_shortcut_title" = "قائمة مفتوحة";
 "open_menu_shortcut_subtitle" = "فعل قائمة شريط القوائم من أي مكان.";
+"record_shortcut" = "سجل اختصاراً";
+"press_shortcut" = "اضغط على الاختصار";
 "install_cli" = "تثبيت CLI";
 "install_cli_subtitle" = "Symlink CodexBarCLI إلى /usr/local/bin و /opt/homebrew/bin ك codexbar.";
 "cli_not_found" = "CodexBarCLI غير موجود في حزمة التطبيقات.";
@@ -939,6 +941,7 @@
 "Monthly" = "شهريا";
 "Sonnet" = "السوناتة";
 "Overages" = "الزيادات";
+"Overage" = "التجاوز";
 "Activity" = "النشاط";
 "Copied" = "تم النسخ";
 "Copy error" = "خطأ في النسخ.";
@@ -949,6 +952,7 @@
 "Balance updates in near-real time (up to 5 min lag)" = "تحديثات التوازن في الوقت شبه الحقيقي (حتى تأخير 5 دقائق)";
 "Daily billing data finalizes at 07:00 UTC" = "يتم الانتهاء من بيانات الفوترة اليومية في الساعة 07:00 UTC";
 "%@ of %@ credits left" = "%@ من %@ اعتمادات متبقية";
+"of %@" = "من %@";
 "%@ of %@ bonus credits left" = "%@ من %@ رصيد إضافي متبقي";
 "%@ / %@ (%@ remaining)" = "%@ / %@ (%@ متبقية)";
 "%@/%@ left" = "%@/%@ متبقٍ";
@@ -960,6 +964,7 @@
 "Full in ~1 regen" = "تجدد كامل ~1";
 "Full in ~%.0f regens" = "جميع التحديثات ~%.0f";
 "Overage usage" = "الاستخدام الزائد";
+"Overage credits left" = "الرصيد الزائد المتبقي";
 "Overage cost" = "تكلفة التجاوز";
 "credits" = "الاعتمادات";
 "Zen balance" = "توازن الزن";
@@ -1375,6 +1380,7 @@
 "menu_bar_layout_empty_line" = "أفلت عنصراً هنا";
 "menu_bar_layout_line" = "السطر %d";
 "menu_bar_layout_drag_remove" = "اسحب هنا للإزالة";
+"menu_bar_layout_remove_selected" = "إزالة المحدد";
 "menu_bar_layout_size" = "الحجم";
 "menu_bar_layout_size_small" = "صغير";
 "menu_bar_layout_size_regular" = "عادي";
@@ -1514,6 +1520,10 @@
 "menu_bar_layout_conditional_name" = "الاسم";
 "menu_bar_layout_conditional_name_placeholder" = "مثال: فحص الجلسة";
 "menu_bar_layout_conditional_name_error" = "أدخل اسماً فريداً";
+"menu_bar_layout_conditional_used" = "مستخدم";
+"menu_bar_layout_conditional_remaining" = "متبقٍ";
+"menu_bar_layout_conditional_metric_resets_in" = "تتم إعادة تعيين %@ خلال";
+"menu_bar_layout_conditional_metric_scoped_weekly" = "أسبوعي محدد النطاق";
 "menu_bar_layout_conditional_duplicate" = "تكرار";
 "menu_bar_layout_conditional_or" = "أو";
 "menu_bar_layout_conditional_add_condition" = "إضافة شرط";

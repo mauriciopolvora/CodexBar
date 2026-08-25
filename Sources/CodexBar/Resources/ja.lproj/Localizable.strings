@@ -652,6 +652,8 @@
 "section_keyboard_shortcut" = "キーボードショートカット";
 "open_menu_shortcut_title" = "メニューを開く";
 "open_menu_shortcut_subtitle" = "どこからでもメニューバーのメニューを開きます。";
+"record_shortcut" = "キーを記録";
+"press_shortcut" = "キーを押してください";
 "install_cli" = "CLI をインストール";
 "install_cli_subtitle" = "CodexBarCLI を codexbar として /usr/local/bin と /opt/homebrew/bin にシンボリックリンクします。";
 "cli_not_found" = "アプリバンドル内に CodexBarCLI が見つかりません。";
@@ -929,6 +931,7 @@
 "Monthly" = "月間";
 "Sonnet" = "Sonnet";
 "Overages" = "超過分";
+"Overage" = "超過分";
 "Activity" = "アクティビティ";
 "Copied" = "コピーしました";
 "Copy error" = "エラーをコピー";
@@ -939,6 +942,7 @@
 "Balance updates in near-real time (up to 5 min lag)" = "残高はほぼリアルタイムで更新されます（最大5分の遅延）";
 "Daily billing data finalizes at 07:00 UTC" = "日次請求データは 07:00 UTC に確定します";
 "%@ of %@ credits left" = "クレジット残り %@ / %@";
+"of %@" = "/ %@";
 "%@ of %@ bonus credits left" = "ボーナスクレジット残り %@ / %@";
 "%@ / %@ (%@ remaining)" = "%@ / %@（残り %@）";
 "%@/%@ left" = "残り %@/%@";
@@ -950,6 +954,7 @@
 "Full in ~1 regen" = "約1回の再生成で満タン";
 "Full in ~%.0f regens" = "約%.0f回の再生成で満タン";
 "Overage usage" = "超過使用量";
+"Overage credits left" = "残り超過クレジット";
 "Overage cost" = "超過コスト";
 "credits" = "クレジット";
 "Zen balance" = "Zen 残高";
@@ -1372,6 +1377,7 @@
 "menu_bar_layout_empty_line" = "ここにトークンをドロップ";
 "menu_bar_layout_line" = "%d 行目";
 "menu_bar_layout_drag_remove" = "ここへドラッグして削除";
+"menu_bar_layout_remove_selected" = "選択項目を削除";
 "menu_bar_layout_size" = "サイズ";
 "menu_bar_layout_size_small" = "小";
 "menu_bar_layout_size_regular" = "標準";
@@ -1510,6 +1516,10 @@
 "menu_bar_layout_conditional_name" = "名前";
 "menu_bar_layout_conditional_name_placeholder" = "例：セッションチェック";
 "menu_bar_layout_conditional_name_error" = "一意の名前を入力してください";
+"menu_bar_layout_conditional_used" = "使用";
+"menu_bar_layout_conditional_remaining" = "残り";
+"menu_bar_layout_conditional_metric_resets_in" = "%@ のリセットまで";
+"menu_bar_layout_conditional_metric_scoped_weekly" = "スコープ別週間";
 "menu_bar_layout_conditional_duplicate" = "複製";
 "menu_bar_layout_conditional_or" = "または";
 "menu_bar_layout_conditional_add_condition" = "条件を追加";
